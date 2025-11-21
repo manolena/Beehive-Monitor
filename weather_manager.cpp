@@ -113,11 +113,19 @@ static String mapWeatherCodeOpenMeteo(int code) {
 bool weather_geocodeLocation(const char* city, const char* countryCode) {
   if (!city) return false;
   String q = String(city);
+
+  // Build base URL using name parameter (city only).
+  String url = String("https://geocoding-api.open-meteo.com/v1/search?name=") + urlEncode(q)
+               + "&count=1&language=en&format=json";
+
+  // If a country code was provided, append the dedicated countryCode parameter.
+  // Ensure we use the ISO-3166-1 alpha2 form (uppercase).
   if (countryCode && strlen(countryCode) > 0) {
-    q += ",";
-    q += String(countryCode);
+    String cc = String(countryCode);
+    cc.toUpperCase();
+    url += String("&countryCode=") + urlEncode(cc);
   }
-  String url = String("https://geocoding-api.open-meteo.com/v1/search?name=") + urlEncode(q) + "&count=1&language=en&format=json";
+
   Serial.print("[Weather] Geocode (OpenMeteo) -> ");
   Serial.println(url);
 
